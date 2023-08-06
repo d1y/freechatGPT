@@ -1,0 +1,16 @@
+{
+  "name": "freechatgpt",
+  "version": "1.0.0",
+  "description": "",
+  "module": "./main.mjs",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "undici": "^5.23.0",
+    "ws": "^8.13.0"
+  }
+}
