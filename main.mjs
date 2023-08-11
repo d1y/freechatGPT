@@ -1,12 +1,26 @@
 import { WebSocket } from 'ws'
 import { request } from 'undici'
 
+import readline from 'readline'
+import logger from 'loglevel'
+import { marked } from 'marked'
+import { gfmHeadingId } from "marked-gfm-heading-id"
+import TerminalRenderer from 'marked-terminal'
+
 const kGetTokenUrl = 'https://aiplus.azurewebsites.net/api/GetTokenUrl'
 const kSignalApi = "https://aiplus.azurewebsites.net/api"
 const kEntryApi = "https://lshk-lshkdev.azurewebsites.net/api"
 
 // TODO: impl create new chat api(session)
 // const kCreateNewChatApi = ""
+
+marked.use(gfmHeadingId({
+  prefix: "my-prefix-"
+}))
+marked.setOptions({
+  mangle: false,
+  renderer: new TerminalRenderer()
+})
 
 const kHeader = {
   'Accept': '*/*',
@@ -20,6 +34,8 @@ const kHeader = {
   'sec-ch-ua-mobile': '?0',
   'sec-ch-ua-platform': '"macOS"'
 }
+
+const kEOF = '[END]'
 
 /**
  * @param {string} wid 
@@ -39,7 +55,7 @@ async function createConversationStack(wid) {
    * @param question {string}
    * @param lastAnswer {string?}
    */
-  return async function(question, lastAnswer = "") {
+  const result = async function(question, lastAnswer = "") {
     if (lastAnswer) {
       dialogue.push({
         content: lastAnswer,
@@ -57,27 +73,38 @@ async function createConversationStack(wid) {
         token: "",
         "Content-Type": "application/json",
       },
-      body: dialogue,
+      body: JSON.stringify(dialogue),
     })
+    return result
   }
+  return result
 }
+
+let ws
 
 /**
  * @param wss {string}
  * @returns {Promise<any>}
  */
 async function askQuestionsChatGPT(wss) {
-  const ws = new WebSocket(wss)
+  ws = new WebSocket(wss)
   const resp = await new Promise((res, rej)=> {
-    ws.onopen(()=> {
-      // TODO: impl this
-    })
-    ws.onmessage(()=> {
-      // TODO: impl this
-    })
-    ws.onerror(()=> {
-      // TODO: impl this
-    })
+    let result = ""
+    ws.onopen = () => {
+      logger.debug('创建连接成功')
+    }
+    ws.onmessage = event=> {
+      const data = event.data
+      if (data == kEOF) {
+        res(result)  
+      } else {
+        result += (data ?? '')
+      }
+    }
+    ws.onerror = ()=> {
+      logger.error('创建连接失败')
+      rej("")
+    }
   })
   return resp
 }
@@ -129,11 +156,29 @@ async function main() {
   // 那么现在立马启动一个 WebSocket 连接, 并且发送请求, url 就是 tokenModelContext->token
   // 等待返回结果, 返回结果是一个一个字符串, 最后的标识符是 "[END]"
   // 在启动并且建立连接之后, 需要把之前所有的上下文都发过去, 通过 createConversationStack 函数
-  const updateConversation = createConversationStack(tokenModelContext.wid)
+  const updateConversation = await createConversationStack(tokenModelContext.wid)
 
-  const question = "耗子尾汁是什么意思?"
-  askQuestionsChatGPT(question) 
-  updateConversation(question)
+  const rl = readline.createInterface({
+    input: process.stdin,
+    output: process.stdout,
+  })
+  
+  function askQuestion() {
+    rl.question('◠ ◡ ◠ >> ', async (question) => {
+      updateConversation(question)
+      const result = await askQuestionsChatGPT(tokenModelContext.token) 
+      console.log(marked(result))
+      askQuestion()
+    })
+  }
+  
+  askQuestion();
+
+  process.on('SIGINT', () => {
+    rl.close();
+    !!ws && ws.close()
+    process.exit();
+  });
 }
 
 main()

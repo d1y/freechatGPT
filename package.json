@@ -3,14 +3,20 @@
   "version": "1.0.0",
   "description": "",
   "module": "./main.mjs",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+  "bin": {
+    "ai": "./main.mjs"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "loglevel": "^1.8.1",
+    "marked-gfm-heading-id": "^3.0.6",
+    "marked-terminal": "^5.2.0",
     "undici": "^5.23.0",
     "ws": "^8.13.0"
+  },
+  "devDependencies": {
+    "@types/marked": "^5.0.1"
   }
 }
