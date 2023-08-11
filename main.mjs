@@ -1,3 +1,5 @@
+#!/usr/bin/env node
+
 import { WebSocket } from 'ws'
 import { request } from 'undici'
 

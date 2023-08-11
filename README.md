@@ -1,4 +1,4 @@
-# freechatGPT
+# 🦄 FreechatGPT
 
 原Vscode插件:
 [![](https://img.shields.io/badge/vscode-marketplace-blue?logo=visualstudiocode)](https://marketplace.visualstudio.com/items?itemName=rustcc.chatgpt-cn)
@@ -6,8 +6,11 @@
 快速安装⚡
 
 ```
-cnpm i -g https://github.com/d1y/freechatgpt
+cnpm i -g freechatgpt
+ai
 ```
+
+使用实例🔥
 
 ```bash
 >> ai
