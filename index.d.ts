@@ -9,6 +9,17 @@ interface ChatGPTModel {
   IsDefault:  boolean
 }
 
+interface ConversationStackOption {
+  /**
+   * 问题
+   */
+  question: string
+  /**
+   * 上一次的答案
+   */
+  lastAnswer: string
+}
+
 interface ChatGPTDialogue {
   content: string
   role: 'user' | 'ChatGPT'

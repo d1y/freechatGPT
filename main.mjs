@@ -54,10 +54,10 @@ async function createConversationStack(wid) {
   const dialogue = []
   const url = createConversationApi(wid)
   /**
-   * @param question {string}
-   * @param lastAnswer {string?}
+   * @param {ConversationStackOption} options 
    */
-  const result = async function(question, lastAnswer = "") {
+  const result = async function(options) {
+    const { question, lastAnswer } = options
     if (lastAnswer) {
       dialogue.push({
         content: lastAnswer,
@@ -169,10 +169,15 @@ async function main() {
   })
   
   function askQuestion() {
+    let lastAnswer = ''
     rl.question('◠ ◡ ◠ >> ', async (question) => {
-      updateConversation(question)
-      const result = await askQuestionsChatGPT(tokenModelContext.token) 
-      console.log(marked(result))
+      // TODO: 实现 @clear || @model || @help
+      updateConversation({
+        question,
+        lastAnswer,
+      })
+      lastAnswer = await askQuestionsChatGPT(tokenModelContext.token) 
+      console.log(marked(lastAnswer))
       askQuestion()
     })
   }
