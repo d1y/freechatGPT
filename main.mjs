@@ -146,7 +146,8 @@ async function main() {
 
   // 1. 先拿到模型, 有两个: ChatGPT | Claude2
   // 目前先实现 ChatGPT 模型
-  const models = await getModelList()
+  // TODO: reimpl 
+  // const models = await getModelList()
 
   // 2. 然后通过下面这个接口拿到其他相关的字段
   // - expire: 失效时间
@@ -159,6 +160,8 @@ async function main() {
   // 等待返回结果, 返回结果是一个一个字符串, 最后的标识符是 "[END]"
   // 在启动并且建立连接之后, 需要把之前所有的上下文都发过去, 通过 createConversationStack 函数
   const updateConversation = await createConversationStack(tokenModelContext.wid)
+
+  console.clear()
 
   const rl = readline.createInterface({
     input: process.stdin,
